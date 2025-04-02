@@ -1,0 +1,21 @@
+
+@font-face { 
+  font-family: FCIconic;
+  src: local("MyFont"), url(../font/FCIconic-Light.ttf) format("truetype");
+  font-weight: 300 
+}
+@font-face { 
+  font-family: FCIconic;
+  src: local("MyFont"), url(../font/FCIconic-Regular.ttf) format("truetype");
+  font-weight: normal 
+}
+@font-face { 
+  font-family: FCIconic;
+  src: local("MyFont"), url(../font/FCIconic-Bold.ttf) format("truetype");
+  font-weight: bold 
+}
+
+body { 
+  src: local("MyFont"), url(../font/FCIconic-Regular.ttf) format("truetype");
+  font-family: FCIconic !important;
+}
