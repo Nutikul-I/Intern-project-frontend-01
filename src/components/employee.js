@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { FaEdit, FaTrash, FaUserCircle } from "react-icons/fa";
 import Pagination from '@mui/material/Pagination';
 import { readFile } from '@ramonak/react-excel';
+import * as XLSX from 'xlsx';
 
 
 const Employee = ({ size = 80 }) => {
@@ -164,7 +165,7 @@ const Employee = ({ size = 80 }) => {
                             id: formattedData[`A${rowIndex}`]?.v,
                             name: formattedData[`B${rowIndex}`]?.v + ' ' + formattedData[`C${rowIndex}`]?.v,
                             position: formattedData[`E${rowIndex}`]?.v,
-                            email: formattedData[`D${rowIndex}`]?.v,
+                            email: "nal",
                         };
                         employeesData.push(rowData);
                     }
@@ -174,6 +175,20 @@ const Employee = ({ size = 80 }) => {
                 setEmployees(employeesData);
             })
             .catch((error) => console.error("Error reading file:", error));
+    };
+
+    const handleExport = () => {
+        // Convert employees data (JSON) to a sheet
+        const ws = XLSX.utils.json_to_sheet(employees);
+
+        // Create a new workbook
+        const wb = XLSX.utils.book_new();
+
+        // Append the sheet to the workbook
+        XLSX.utils.book_append_sheet(wb, ws, "Employees");
+
+        // Generate the Excel file and trigger the download
+        XLSX.writeFile(wb, "employees.xlsx");
     };
 
     const handleChangePage = (event, newPage) => {
@@ -251,6 +266,7 @@ const Employee = ({ size = 80 }) => {
                                     />
                                     Upload File
                                 </label>
+                                <Button className="btn btn-success" onClick={handleExport}>Export</Button>
                             </div>
 
                         </div>

@@ -17,16 +17,23 @@ const AppSidebar = ({ currentPath }) => {
         }}
       >
         <div className="logo" style={{ textAlign: "center", marginBottom: "20px" }}>
-          <div style={{ fontFamily: "FCIconic", fontWeight: "bold", fontSize: "24px" }}>LOGO</div>
+          <img
+            src="../assets/image/JmLogo.jpg"
+            alt="Logo"
+            style={{ width: "80%", height: "auto" }}
+          />
         </div>
+
 
         <Menu>
           <MenuItem
             active={currentPath === "/console/dashboard"}
-            icon={<FaHome style={{ color: currentPath === "/console/dashboard" ? "#ffffff" : "#6edff6", 
-              backgroundColor: currentPath === "/console/dashboard" ? "#6edff6" : "#ffffff", 
-              borderRadius: "50%", padding: "5px", fontSize: "24px" }} />}
-            component={<Link to="/console/dashboard"/>}
+            icon={<FaHome style={{
+              color: currentPath === "/console/dashboard" ? "#ffffff" : "#6edff6",
+              backgroundColor: currentPath === "/console/dashboard" ? "#6edff6" : "#ffffff",
+              borderRadius: "50%", padding: "5px", fontSize: "24px"
+            }} />}
+            component={<Link to="/console/dashboard" />}
             style={{
               backgroundColor: currentPath === "/console/dashboard" ? "#ffffff" : "transparent",
               boxShadow: currentPath === "/console/dashboard" ? "0 2px 4px rgba(0, 0, 0, 0.1)" : "none",
@@ -38,13 +45,15 @@ const AppSidebar = ({ currentPath }) => {
           >
             แดชบอร์ด
           </MenuItem>
-          
+
           <div style={{ padding: "10px 15px", fontWeight: "bold", color: "#333" }}>ข้อมูลผู้ใช้</div>
           <MenuItem
             active={currentPath === "/console/customer"}
-            icon={<FaUsers style={{ color: currentPath === "/console/customer" ? "#ffffff" : "#6edff6", 
-              backgroundColor: currentPath === "/console/customer" ? "#6edff6" : "#ffffff", 
-              borderRadius: "50%", padding: "5px", fontSize: "24px" }} />}
+            icon={<FaUsers style={{
+              color: currentPath === "/console/customer" ? "#ffffff" : "#6edff6",
+              backgroundColor: currentPath === "/console/customer" ? "#6edff6" : "#ffffff",
+              borderRadius: "50%", padding: "5px", fontSize: "24px"
+            }} />}
             component={<Link to="/console/customer" />}
             style={{
               backgroundColor: currentPath === "/console/customer" ? "#ffffff" : "transparent",
@@ -60,9 +69,11 @@ const AppSidebar = ({ currentPath }) => {
 
           <MenuItem
             active={currentPath === "/console/employee"}
-            icon={<FaUserTie style={{ color: currentPath === "/console/employee" ? "#ffffff" : "#6edff6", 
-              backgroundColor: currentPath === "/console/employee" ? "#6edff6" : "#ffffff", 
-              borderRadius: "50%", padding: "5px", fontSize: "24px" }} />}
+            icon={<FaUserTie style={{
+              color: currentPath === "/console/employee" ? "#ffffff" : "#6edff6",
+              backgroundColor: currentPath === "/console/employee" ? "#6edff6" : "#ffffff",
+              borderRadius: "50%", padding: "5px", fontSize: "24px"
+            }} />}
             component={<Link to="/console/employee" />}
             style={{
               backgroundColor: currentPath === "/console/employee" ? "#ffffff" : "transparent",
@@ -79,9 +90,11 @@ const AppSidebar = ({ currentPath }) => {
           <div style={{ padding: "10px 15px", fontWeight: "bold", color: "#333", marginTop: "15px" }}>ตั้งค่าระบบ</div>
           <MenuItem
             active={currentPath === "/console/position"}
-            icon={<FaBriefcase style={{ color: currentPath === "/console/position" ? "#ffffff" : "#6edff6", 
-              backgroundColor: currentPath === "/console/position" ? "#6edff6" : "#ffffff", 
-              borderRadius: "50%", padding: "5px", fontSize: "24px" }} />}
+            icon={<FaBriefcase style={{
+              color: currentPath === "/console/position" ? "#ffffff" : "#6edff6",
+              backgroundColor: currentPath === "/console/position" ? "#6edff6" : "#ffffff",
+              borderRadius: "50%", padding: "5px", fontSize: "24px"
+            }} />}
             component={<Link to="/console/position" />}
             style={{
               backgroundColor: currentPath === "/console/position" ? "#ffffff" : "transparent",

@@ -1,38 +1,78 @@
-import React from "react";
-
-// Mock data for the dashboard
-const dashboardData = [
-    {
-        title: "ลูกค้า (คน)",
-        count: 53000,
-        growth: "+55%",
-        icon: "bi bi-bell",
-        trend: "success",
-    },
-    {
-        title: "พนักงาน (คน)",
-        count: 1200,
-        growth: "+12%",
-        icon: "bi bi-bell",
-        trend: "success",
-    },
-    {
-        title: "ตำแหน่ง",
-        count: 25,
-        growth: "+8%",
-        icon: "bi bi-bell",
-        trend: "success",
-    },
-];
+import React ,{useEffect, useState}from "react";
 
 const Dashboard = () => {
+
+    // mock data
+    const dashboardData = [
+        {
+            title: "Total Users",
+            count: 1200,
+            growth: "+15%",
+            trend: "success",
+            icon: "bi bi-person-fill"
+        },
+        {
+            title: "Total Revenue",
+            count: 50000,
+            growth: "+20%",
+            trend: "success",
+            icon: "bi bi-currency-dollar"
+        },
+        {
+            title: "Total Orders",
+            count: 300,
+            growth: "+10%",
+            trend: "success",
+            icon: "bi bi-basket-fill"
+        },
+        {
+            title: "Total Products",
+            count: 150,
+            growth: "+5%",
+            trend: "success",
+            icon: "bi bi-box-fill"
+        },
+        {
+            title: "Total Categories",
+            count: 20,
+            growth: "+8%",
+            trend: "success",
+            icon: "bi bi-tags-fill"
+        },
+        {
+            title: "Total Reviews",
+            count: 100,
+            growth: "+12%",
+            trend: "success",
+            icon: "bi bi-star-fill"
+        }
+    ];
+    const [data, setData] = useState(dashboardData);
+
+    const getData = async () => {
+        // Simulate fetching data from an API
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(dashboardData);
+            }, 1000);
+        });
+    }
+    useEffect(() => {
+        const fetchData = async () => {
+            const result = await getData();
+            setData(result);
+        };
+        fetchData();
+    }, []);
+
+
     return (
         <div className="container-fluid vh-100 d-flex flex-column">
             <div className="row flex-grow-1">
                 <div className="col-12 d-flex flex-column">
                     <main className="flex-grow-1">
                         <div className="row g-4">
-                            {dashboardData.map((item, index) => (
+                            {data.map((item, index) => (
                                 <div key={index} className="col-12 col-sm-6 col-md-4">
                                     <div className="card shadow-sm p-4 h-100">
                                         <div className="d-flex justify-content-between align-items-center">
