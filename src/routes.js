@@ -8,9 +8,9 @@ import Console from "./page/console";
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Loading />} />
-      <Route path="/login" element={<Login />} />
-      {/* Important: Use /* to allow nested routing inside Console */}
-      <Route path="/console/*" element={<Console />} />
+    <Route path="/login" element={<Login />} />
+    {/* Important: Use /* to allow nested routing inside Console */}
+    <Route path="/console/*" element={<Console />} />
   </Routes>
 );
 

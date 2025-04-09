@@ -1,1 +1,1 @@
-global.list = []
+global.list = [];
