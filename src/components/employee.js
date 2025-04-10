@@ -5,6 +5,18 @@ import { FaEdit, FaTrash, FaUserCircle } from "react-icons/fa";
 import Pagination from '@mui/material/Pagination';
 import { readFile } from '@ramonak/react-excel';
 import * as XLSX from 'xlsx';
+import { pdf, Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
+import THSarabun from '../assets/font/THSarabunNew.ttf';
+import THSarabunBold from '../assets/font/THSarabunNew Bold.ttf';
+import signatureImg from '../assets/image/signature2.webp';
+
+Font.register({
+    family: 'THSarabun',
+    fonts: [
+        { src: THSarabun, fontWeight: 'normal' },
+        { src: THSarabunBold, fontWeight: 'bold' },
+    ],
+});
 
 
 const Employee = ({ size = 80 }) => {
@@ -15,7 +27,11 @@ const Employee = ({ size = 80 }) => {
     const [imgError, setImgError] = useState(false);
     const fileInputRef = useRef(null);
     const [employees, setEmployees] = useState([
-        { id: "0000001", name: "นายทดสอบ นามสกุลสมมติ", position: "ตำแหน่ง", email: "email@gmail.com" },
+        {
+            id: "0000001", firstName: "นายทดสอบ", lastName: "นามสกุลสมมติ",
+            sex: "ชาย", position: "ตำแหน่ง", Department: "แผนก", email: "email@gmail.com",
+            startDate: "2023-01-01", salary: "10000"
+        },
     ]);
 
     const [formData, setFormData] = useState({
@@ -114,6 +130,7 @@ const Employee = ({ size = 80 }) => {
             });
         }
     };
+
     const deleteEmployee = async (id) => {
         await Swal.fire({
             title: "คุณแน่ใจหรือไม่?",
@@ -154,27 +171,47 @@ const Employee = ({ size = 80 }) => {
         const file = event.target.files[0];
         readFile(file)
             .then((readedData) => {
-                // Assuming the sheet contains the correct columns for the employees (id, name, position, email, etc.)
-                const formattedData = readedData.Sheets[readedData.SheetNames[0]];  // Get the first sheet
+                const sheet = readedData.Sheets[readedData.SheetNames[0]];
+                const range = sheet["!ref"];
+                const endRow = parseInt(range.split(":")[1].replace(/[A-Z]/g, ''));
 
                 const employeesData = [];
-                for (let rowIndex = 2; rowIndex <= formattedData['!ref'].split(':')[1].replace(/[A-Z]/g, ''); rowIndex++) {
-                    const row = formattedData[`A${rowIndex}`];
-                    if (row && row.v) {
-                        const rowData = {
-                            id: formattedData[`A${rowIndex}`]?.v,
-                            name: formattedData[`B${rowIndex}`]?.v + ' ' + formattedData[`C${rowIndex}`]?.v,
-                            position: formattedData[`E${rowIndex}`]?.v,
-                            email: "nal",
-                        };
-                        employeesData.push(rowData);
+                for (let rowIndex = 2; rowIndex <= endRow; rowIndex++) {
+                    const id = sheet[`A${rowIndex}`]?.v;
+                    const firstName = sheet[`B${rowIndex}`]?.v;
+                    const lastName = sheet[`C${rowIndex}`]?.v;
+                    const sex = sheet[`D${rowIndex}`]?.v;
+                    const position = sheet[`E${rowIndex}`]?.v;
+                    const department = sheet[`F${rowIndex}`]?.v;
+                    const startDate = sheet[`G${rowIndex}`]?.v;
+                    const salary = sheet[`H${rowIndex}`]?.v;
+
+                    if (id) {
+                        employeesData.push({
+                            id,
+                            firstName,
+                            lastName,
+                            sex,
+                            position,
+                            Department: department,
+                            email: "-", // No email in Excel, use placeholder or generate if needed
+                            startDate: convertExcelDate(startDate),
+                            salary: salary.toString()
+                        });
                     }
                 }
 
-                // Update the employees state with the new data
                 setEmployees(employeesData);
             })
             .catch((error) => console.error("Error reading file:", error));
+    };
+
+    const convertExcelDate = (excelDate) => {
+        if (typeof excelDate === "number") {
+            const date = new Date((excelDate - 25569) * 86400 * 1000);
+            return date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+        }
+        return excelDate; // Already a valid date string
     };
 
     const handleExport = () => {
@@ -190,6 +227,163 @@ const Employee = ({ size = 80 }) => {
         // Generate the Excel file and trigger the download
         XLSX.writeFile(wb, "employees.xlsx");
     };
+
+
+    const styles = StyleSheet.create({
+        table: {
+            marginTop: 10,
+            width: '100%',
+            borderWidth: 1,
+            borderStyle: 'solid',
+            borderRightWidth: 0,
+            borderBottomWidth: 0,
+        },
+        tableRow: {
+            flexDirection: 'row',
+        },
+        tableCell: {
+            flex: 1,
+            padding: 4,
+            borderRightWidth: 1,
+            borderBottomWidth: 1,
+            borderStyle: 'solid',
+            textAlign: 'center',
+        },
+    });
+
+    const handleExportPDF = () => {
+        const maleCount = employees.filter(emp => emp.sex === 'ชาย').length;
+        const femaleCount = employees.filter(emp => emp.sex === 'หญิง').length;
+
+        const employeeTableHeader = ['รหัสพนักงาน', 'ชื่อ', 'นามสกุล', 'เพศ', 'ตำแหน่ง', 'แผนก', 'วันที่เริ่มงาน', 'เงินเดือน'];
+
+        const employeeTableBody = employees.slice(0, 15).map(emp => (
+            <View key={emp.id} style={styles.tableRow}>
+                <Text style={styles.tableCell}>{emp.id}</Text>
+                <Text style={styles.tableCell}>{emp.firstName}</Text>
+                <Text style={styles.tableCell}>{emp.lastName}</Text>
+                <Text style={styles.tableCell}>{emp.sex}</Text>
+                <Text style={styles.tableCell}>{emp.position}</Text>
+                <Text style={styles.tableCell}>{emp.Department}</Text>
+                <Text style={styles.tableCell}>{emp.startDate}</Text>
+                <Text style={styles.tableCell}>{emp.salary}</Text>
+            </View>
+        ));
+
+        const doc = (
+            <Document>
+                <Page size="A4" style={{ padding: 40, fontFamily: 'THSarabun', fontSize: 14 }}>
+                    <Text
+                        style={{
+                            fontSize: 12,
+                            textAlign: 'center',
+                            fontFamily: 'THSarabun',
+                            marginBottom: 10,
+                        }}
+                        render={({ pageNumber }) => `${pageNumber}`}
+                        fixed
+                    />
+
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>ข้อมูลพนักงาน</Text>
+                        <Text style={{ fontSize: 14 }}>วันที่: 9 เดือนเมษายน 2568</Text>
+                    </View>
+
+                    <View style={styles.table}>
+                        <View style={[styles.tableRow, { backgroundColor: '#eee' }]}>
+                            {employeeTableHeader.map((header, index) => (
+                                <Text key={index} style={[styles.tableCell, { fontWeight: 'bold' }]}>
+                                    {header}
+                                </Text>
+                            ))}
+                        </View>
+                        {employeeTableBody}
+                    </View>
+
+                    <View style={{ marginTop: 15 }}>
+                        <Text>รวมพนักงานทั้งหมด {employees.length} คน</Text>
+                        <Text>แบ่งเป็น ชาย {maleCount} คน หญิง {femaleCount} คน</Text>
+                    </View>
+
+                    <View style={{ marginTop: 20, alignItems: 'flex-end', paddingRight: 40 }}>
+                        <Text>ลงชื่อ...........................................</Text>
+                        <Text>(..............................................)</Text>
+                        <Text>ตำแหน่ง:......ผู้บันทึกข้อมูล......</Text>
+                    </View>
+
+                    <View style={{ alignItems: 'flex-end', paddingRight: 40 }} >
+                        <Text style={{ fontSize: 14, fontFamily: 'THSarabun', marginBottom: 5 }}>
+                            ลายเซ็น
+                        </Text>
+                        <View
+                            style={{
+                                border: '2px solid #1a2b34',
+                                padding: 10,
+                                width: 120,
+                                height: 50,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Image
+                                src={signatureImg}
+                                style={{
+                                    width: '80%',
+                                    height: 'auto',
+                                    objectFit: 'contain',
+                                }}
+                            />
+                        </View>
+                    </View>
+
+                    <Text style={{ marginTop: 20, fontSize: 12 }}>
+                        ติดต่อ โทร. 0999999999
+                    </Text>
+                </Page>
+                <Page size="A4" style={{ padding: 40, fontFamily: 'THSarabun', fontSize: 14 }}>
+                    <Text
+                        style={{
+                            fontSize: 12,
+                            textAlign: 'center',
+                            fontFamily: 'THSarabun',
+                            marginBottom: 10,
+                        }}
+                        render={({ pageNumber }) => `${pageNumber}`}
+                        fixed
+                    />
+                    <View>
+                        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>
+                            What is Lorem Ipsum?
+                        </Text>
+                        <Text style={{ fontSize: 14, fontWeight: 'normal' }}>
+                            <Text style={{ fontSize: 14, fontWeight: 'bold', marginRight: 5 }}>
+                                {'\t'}Lorem Ipsum 
+                            </Text>
+                            is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
+                            the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and
+                            scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into
+                            electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of
+                            Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like
+                            Aldus PageMaker including versions of Lorem Ipsum.
+                        </Text>
+                    </View>
+                </Page>
+            </Document>
+
+        );
+
+        pdf(doc).toBlob().then(blob => {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'employee-report.pdf';
+            link.click();
+            URL.revokeObjectURL(url);
+        });
+    };
+
+
+
 
     const handleChangePage = (event, newPage) => {
         setCurrentPage(newPage);
@@ -266,7 +460,8 @@ const Employee = ({ size = 80 }) => {
                                     />
                                     Upload File
                                 </label>
-                                <Button className="btn btn-success" onClick={handleExport}>Export</Button>
+                                <Button className="btn btn-success" onClick={handleExport}>Export Excel</Button>
+                                <Button className="btn btn-danger" onClick={handleExportPDF}>Export PDF</Button>
                             </div>
 
                         </div>

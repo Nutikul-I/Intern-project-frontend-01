@@ -50,12 +50,14 @@ const Dashboard = () => {
     const [data, setData] = useState(dashboardData);
 
     const getData = async () => {
-        // Simulate fetching data from an API
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(dashboardData);
-            }, 1000);
-        });
+        await fetch("https://api.example.com/dashboard")
+            .then((response) => response.json())
+            .then((data) => {
+                setData(data);
+            })
+            .catch((error) => {
+                console.error("Error fetching data:", error);
+            });
     }
     useEffect(() => {
         const fetchData = async () => {

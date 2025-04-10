@@ -3,6 +3,8 @@ import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Link } from "react-router-dom";
 import { FaHome, FaUsers, FaUserTie, FaBriefcase } from "react-icons/fa";
 import "../assets/css/style.css";
+import logo from "../assets/image/JmLogo.png";
+
 
 const AppSidebar = ({ currentPath }) => {
 
@@ -18,12 +20,11 @@ const AppSidebar = ({ currentPath }) => {
       >
         <div className="logo" style={{ textAlign: "center", marginBottom: "20px" }}>
           <img
-            src="../assets/image/JmLogo.jpg"
+            src={logo}
             alt="Logo"
-            style={{ width: "80%", height: "auto" }}
+            style={{ width: "60px", height: "60px" }}
           />
         </div>
-
 
         <Menu>
           <MenuItem
