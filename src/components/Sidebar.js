@@ -108,6 +108,25 @@ const AppSidebar = ({ currentPath }) => {
           >
             ตำแหน่ง
           </MenuItem>
+          <MenuItem
+            active={currentPath === "/console/permission"}
+            icon={<FaBriefcase style={{
+              color: currentPath === "/console/permission" ? "#ffffff" : "#6edff6",
+              backgroundColor: currentPath === "/console/permission" ? "#6edff6" : "#ffffff",
+              borderRadius: "50%", padding: "5px", fontSize: "24px"
+            }} />}
+            component={<Link to="/console/permission" />}
+            style={{
+              backgroundColor: currentPath === "/console/permission" ? "#ffffff" : "transparent",
+              boxShadow: currentPath === "/console/permission" ? "0 2px 4px rgba(0, 0, 0, 0.1)" : "none",
+              color: currentPath === "/console/permission" ? "#333" : "#999",
+              borderRadius: "10px",
+              marginBottom: "10px",
+              padding: "12px",
+            }}
+          >
+            สิทธิ์การใช้งาน
+          </MenuItem>
         </Menu>
 
         <div style={{ position: "absolute", bottom: "20px", textAlign: "center", width: "100%", color: "#999" }}>

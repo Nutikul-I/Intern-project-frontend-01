@@ -47,18 +47,9 @@ const Dashboard = () => {
             icon: "bi bi-star-fill"
         }
     ];
+
     const [data, setData] = useState(dashboardData);
 
-    const getData = async () => {
-        await fetch("https://api.example.com/dashboard")
-            .then((response) => response.json())
-            .then((data) => {
-                setData(data);
-            })
-            .catch((error) => {
-                console.error("Error fetching data:", error);
-            });
-    }
     useEffect(() => {
         const fetchData = async () => {
             const result = await getData();
@@ -67,6 +58,10 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
+    const getData = async () => {
+        const response = await fetch("http://localhost:3000/dashboard");
+        const data = await response.json();
+    }
 
     return (
         <div className="container-fluid vh-100 d-flex flex-column">

@@ -6,6 +6,7 @@ import Dashboard from "../components/dashboard";
 import Customer from "../components/customer";
 import Employee from "../components/employee";
 import Position from "../components/position";
+import Permissions from "../components/permission";
 
 const Console = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -46,6 +47,7 @@ const Console = () => {
     "/console/customer": " ",
     "/console/employee": " ",
     "/console/position": " ",
+    "/console/permission": " "
   };
   const headerTitle = pageTitles[location.pathname] || "แดชบอร์ด";
 
@@ -118,6 +120,7 @@ const Console = () => {
             <Route path="/customer" element={<Customer />} />
             <Route path="/employee" element={<Employee />} />
             <Route path="/position" element={<Position />} />
+            <Route path="/permission" element={<Permissions />} />
             {/* <Route path="*" element={<Dashboard />} /> */}
           </Routes>
         </main>

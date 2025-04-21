@@ -8,7 +8,6 @@ import * as XLSX from 'xlsx';
 import { pdf, Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
 import THSarabun from '../assets/font/THSarabunNew.ttf';
 import THSarabunBold from '../assets/font/THSarabunNew Bold.ttf';
-import signatureImg from '../assets/image/signature2.webp';
 
 Font.register({
     family: 'THSarabun',
@@ -33,6 +32,27 @@ const Employee = ({ size = 80 }) => {
             startDate: "2023-01-01", salary: "10000"
         },
     ]);
+
+    const thaiMonths = [
+        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน',
+        'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม',
+        'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+    ];
+
+    const today = new Date();
+    const day = today.getDate();
+    const month = thaiMonths[today.getMonth()];
+    const year = today.getFullYear() + 543;
+
+    const rowsTablePerPage = 20; // ปรับจำนวนแถวต่อหน้าให้เหมาะสม
+    const pages = [];
+
+    for (let i = 0; i < employees.length; i += rowsTablePerPage) {
+        const chunk = employees.slice(i, i + rowsTablePerPage);
+        pages.push(chunk);
+    }
+
+    const formattedDate = `วันที่ ${day} เดือน${month} ${year}`;
 
     const [formData, setFormData] = useState({
         id: "",
@@ -59,10 +79,7 @@ const Employee = ({ size = 80 }) => {
         leave: 0,
         vacationLeave: 0,
         sickLeave: 0,
-        allPermissions: false,
-        customer: false,
-        employee: false,
-        positionSeting: false,
+        roleId: 1,
     });
 
     useEffect(() => {
@@ -249,6 +266,14 @@ const Employee = ({ size = 80 }) => {
             borderStyle: 'solid',
             textAlign: 'center',
         },
+        container: {
+
+        },
+        text: {
+            fontSize: 14,
+            fontFamily: 'THSarabun',
+            marginBottom: 5,
+        },
     });
 
     const handleExportPDF = () => {
@@ -257,89 +282,106 @@ const Employee = ({ size = 80 }) => {
 
         const employeeTableHeader = ['รหัสพนักงาน', 'ชื่อ', 'นามสกุล', 'เพศ', 'ตำแหน่ง', 'แผนก', 'วันที่เริ่มงาน', 'เงินเดือน'];
 
-        const employeeTableBody = employees.slice(0, 15).map(emp => (
-            <View key={emp.id} style={styles.tableRow}>
-                <Text style={styles.tableCell}>{emp.id}</Text>
-                <Text style={styles.tableCell}>{emp.firstName}</Text>
-                <Text style={styles.tableCell}>{emp.lastName}</Text>
-                <Text style={styles.tableCell}>{emp.sex}</Text>
-                <Text style={styles.tableCell}>{emp.position}</Text>
-                <Text style={styles.tableCell}>{emp.Department}</Text>
-                <Text style={styles.tableCell}>{emp.startDate}</Text>
-                <Text style={styles.tableCell}>{emp.salary}</Text>
-            </View>
-        ));
-
         const doc = (
             <Document>
-                <Page size="A4" style={{ padding: 40, fontFamily: 'THSarabun', fontSize: 14 }}>
-                    <Text
-                        style={{
-                            fontSize: 12,
-                            textAlign: 'center',
-                            fontFamily: 'THSarabun',
-                            marginBottom: 10,
-                        }}
-                        render={({ pageNumber }) => `${pageNumber}`}
-                        fixed
-                    />
+                {pages.map((employeeChunk, pageIndex) => (
+                    <Page key={pageIndex} size="A4" style={{ padding: 40, fontFamily: 'THSarabun', fontSize: 14 }}>
+                        <Text
+                            style={{
+                                fontSize: 12,
+                                textAlign: 'center',
+                                fontFamily: 'THSarabun',
+                                marginBottom: 10,
+                            }}
+                            render={({ pageNumber }) => `${pageNumber}`}
+                            fixed
+                        />
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
-                        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>ข้อมูลพนักงาน</Text>
-                        <Text style={{ fontSize: 14 }}>วันที่: 9 เดือนเมษายน 2568</Text>
-                    </View>
+                        {/* Header */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                            <Text style={{ fontSize: 24, fontWeight: 'bold' }}>ข้อมูลพนักงาน</Text>
+                            <Text style={{ fontSize: 14 }}>{formattedDate}</Text>
+                        </View>
 
-                    <View style={styles.table}>
-                        <View style={[styles.tableRow, { backgroundColor: '#eee' }]}>
-                            {employeeTableHeader.map((header, index) => (
-                                <Text key={index} style={[styles.tableCell, { fontWeight: 'bold' }]}>
-                                    {header}
-                                </Text>
+                        {/* Table with header */}
+                        <View style={[styles.table, { marginBottom: 10 }]}>
+                            <View style={[styles.tableRow, { backgroundColor: '#eee' }]}>
+                                {employeeTableHeader.map((header, index) => (
+                                    <Text key={index} style={[styles.tableCell, { fontWeight: 'bold' }]}>
+                                        {header}
+                                    </Text>
+                                ))}
+                            </View>
+                            {employeeChunk.map((employee, index) => (
+                                <View key={index} style={styles.tableRow}>
+                                    <Text style={styles.tableCell}>{employee.id}</Text>
+                                    <Text style={styles.tableCell}>{employee.firstName}</Text>
+                                    <Text style={styles.tableCell}>{employee.lastName}</Text>
+                                    <Text style={styles.tableCell}>{employee.sex}</Text>
+                                    <Text style={styles.tableCell}>{employee.position}</Text>
+                                    <Text style={styles.tableCell}>{employee.Department}</Text>
+                                    <Text style={styles.tableCell}>{employee.startDate}</Text>
+                                    <Text style={styles.tableCell}>{employee.salary}</Text>
+                                </View>
                             ))}
                         </View>
-                        {employeeTableBody}
-                    </View>
 
-                    <View style={{ marginTop: 15 }}>
-                        <Text>รวมพนักงานทั้งหมด {employees.length} คน</Text>
-                        <Text>แบ่งเป็น ชาย {maleCount} คน หญิง {femaleCount} คน</Text>
-                    </View>
+                        {/* Summary และ ลายเซ็น เฉพาะหน้าสุดท้าย */}
+                        {pageIndex === pages.length - 1 && (
+                            <View wrap={false}>
+                                {/* Summary */}
+                                <View style={{ marginTop: 15 }}>
+                                    <Text>รวมพนักงานทั้งหมด {employees.length} คน</Text>
+                                    <Text>แบ่งเป็น ชาย {maleCount} คน หญิง {femaleCount} คน</Text>
+                                </View>
 
-                    <View style={{ marginTop: 20, alignItems: 'flex-end', paddingRight: 40 }}>
-                        <Text>ลงชื่อ...........................................</Text>
-                        <Text>(..............................................)</Text>
-                        <Text>ตำแหน่ง:......ผู้บันทึกข้อมูล......</Text>
-                    </View>
+                                {/* Signature section */}
+                                <View style={{ marginTop: 30, paddingRight: 40, alignItems: 'flex-end' }}>
+                                    <Text style={{ fontSize: 14, marginBottom: 5 }}>
+                                        ลงชื่อ.....................................................
+                                    </Text>
+                                    <Text style={{ fontSize: 14, marginBottom: 5 }}>
+                                        (...........................................................)
+                                    </Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Text style={{ fontSize: 14, marginRight: 34 }}>ตำแหน่ง</Text>
+                                        <Text style={{ fontSize: 14, marginRight: 25 }}>ผู้บันทึกข้อมูล</Text>
+                                    </View>
+                                    <Text style={{ fontSize: 14, marginTop: -15 }}>
+                                        ...............................................
+                                    </Text>
+                                </View>
 
-                    <View style={{ alignItems: 'flex-end', paddingRight: 40 }} >
-                        <Text style={{ fontSize: 14, fontFamily: 'THSarabun', marginBottom: 5 }}>
-                            ลายเซ็น
-                        </Text>
-                        <View
-                            style={{
-                                border: '2px solid #1a2b34',
-                                padding: 10,
-                                width: 120,
-                                height: 50,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Image
-                                src={signatureImg}
-                                style={{
-                                    width: '80%',
-                                    height: 'auto',
-                                    objectFit: 'contain',
-                                }}
-                            />
-                        </View>
-                    </View>
+                                {/* Signature image */}
+                                <View style={{ alignItems: 'flex-end', paddingRight: 40 }}>
+                                    <Text style={{ fontSize: 14, marginBottom: 5, paddingRight: 100 }}>
+                                        ลายเซ็น
+                                    </Text>
+                                    <View
+                                        style={{
+                                            border: '2px solid #1a2b34',
+                                            padding: 10,
+                                            width: 130,
+                                            height: 50,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}
+                                    >
+                                        <Image
+                                            src={"https://i0.wp.com/www.iurban.in.th/wp-content/uploads/2010/06/signature2.jpg?w=1920&ssl=1"}
+                                            style={{ width: '80%', height: 'auto', objectFit: 'contain' }}
+                                        />
+                                    </View>
+                                </View>
 
-                    <Text style={{ marginTop: 20, fontSize: 12 }}>
-                        ติดต่อ โทร. 0999999999
-                    </Text>
-                </Page>
+                                <Text style={{ marginTop: 20, fontSize: 12 }}>
+                                    ติดต่อ โทร. 0999999999
+                                </Text>
+                            </View>
+                        )}
+                    </Page>
+                ))}
+
                 <Page size="A4" style={{ padding: 40, fontFamily: 'THSarabun', fontSize: 14 }}>
                     <Text
                         style={{
@@ -352,24 +394,47 @@ const Employee = ({ size = 80 }) => {
                         fixed
                     />
                     <View>
-                        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>
+                        <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 10 }}>
                             What is Lorem Ipsum?
                         </Text>
-                        <Text style={{ fontSize: 14, fontWeight: 'normal' }}>
-                            <Text style={{ fontSize: 14, fontWeight: 'bold', marginRight: 5 }}>
-                                {'\t'}Lorem Ipsum 
-                            </Text>
-                            is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
+
+                        <Text style={{ fontSize: 14, fontWeight: 'normal', lineHeight: 1.5 }}>
+                            <Text style={{ fontWeight: 'bold' }}>{'\u00A0\u00A0\u00A0\u00A0\u00A0'}Lorem Ipsum</Text>
+                            {' '}is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
                             the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and
                             scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into
-                            electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of
-                            Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like
-                            Aldus PageMaker including versions of Lorem Ipsum.
+                            electronic typesetting, remaining essentially unchanged.
                         </Text>
                     </View>
+
+                    <View>
+                        <Text style={{ fontSize: 24, fontWeight: 'normal', marginBottom: 10 }}>
+                            Where does it come from?
+                        </Text>
+
+                        <Text style={{ fontSize: 14, fontWeight: 'normal', lineHeight: 1.5 }}>
+                            {'\u00A0\u00A0\u00A0\u00A0\u00A0'}Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical
+                            Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-
+                            Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum
+                            passage, and going through the cites of the word in classical literature, discovered the undoubtable source.
+                            Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of
+                            Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during
+                            the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section
+                            1.10.32.
+                        </Text>
+                    </View>
+
+                    <View style={{ marginTop: 20, alignItems: 'flex-end' }}>
+                        <Image
+                            source={{
+                                uri: `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent("https://www.google.co.th/")}`,
+                            }}
+                            style={{ width: 70, height: 70 }}
+                        />
+                    </View>
+
                 </Page>
             </Document>
-
         );
 
         pdf(doc).toBlob().then(blob => {
@@ -381,9 +446,6 @@ const Employee = ({ size = 80 }) => {
             URL.revokeObjectURL(url);
         });
     };
-
-
-
 
     const handleChangePage = (event, newPage) => {
         setCurrentPage(newPage);
@@ -480,7 +542,7 @@ const Employee = ({ size = 80 }) => {
                                     {currentItems.map((employee) => (
                                         <tr key={employee.id}>
                                             <td>{employee.id}</td>
-                                            <td>{employee.name}</td>
+                                            <td>{employee.firstName}{" "}{employee.lastName}</td>
                                             <td>{employee.position}</td>
                                             <td>{employee.email}</td>
                                             <td>
@@ -789,56 +851,16 @@ const Employee = ({ size = 80 }) => {
                                             placeholder="ลาป่วย" />
                                     </Col>
                                 </Form.Group>
+
+                                <h5 style={{ color: "#6edff6" }}>สิทธิ์การใช้งาน</h5>
+                                
                                 <Form.Group as={Row} className="mb-3">
-                                    <Form.Label column sm={4}><h5 style={{ color: "#6edff6" }}>สิทธิ์การใช้งาน</h5></Form.Label>
-                                    <Col sm={8}>
-                                        <Form.Check
-                                            inline
-                                            type="checkbox"
-                                            label="เลือกทั้งหมด"
-                                            name="allPermissions"
-                                            checked={formData.allPermissions}
-                                            onChange={(e) => {
-                                                const checked = e.target.checked;
-                                                setFormData((prev) => ({
-                                                    ...prev,
-                                                    allPermissions: checked,
-                                                    customer: checked,
-                                                    employee: checked,
-                                                    positionSeting: checked
-                                                }));
-                                            }}
-                                        />
-                                    </Col>
-                                </Form.Group>
-                                <Form.Group as={Row} className="mb-3">
-                                    <Form.Label>ข้อมูลผุ้ใช้</Form.Label>
-                                    <div>
-                                        <Form.Check
-                                            type="checkbox"
-                                            label="ลูกค้า"
-                                            name="customer"
-                                            checked={formData.customer}
-                                            onChange={handleChange}
-                                        />
-                                        <Form.Check
-                                            type="checkbox"
-                                            label="พนักงาน"
-                                            name="employee"
-                                            checked={formData.employee}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-                                </Form.Group>
-                                <Form.Group as={Row} className="mb-3">
-                                    <Form.Label >ตั้งค่า</Form.Label>
-                                    <Form.Check
-                                        type="checkbox"
-                                        label="ตำแหน่ง"
-                                        name="positionSeting"
-                                        checked={formData.positionSeting}
-                                        onChange={handleChange}
-                                    />
+                                    <Form.Label column sm={4}>สิทธิ์การใช้งาน</Form.Label>
+                                    <Col sm={8}><Form.Select name="color" value={formData.roleId} onChange={handleChange}>
+                                        <option value="">เลือกสิทธิ์</option>
+                                        <option value="1">พนักงาน</option>
+                                        <option value="2">Admin</option>
+                                    </Form.Select></Col>
                                 </Form.Group>
 
                             </Col>

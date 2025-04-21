@@ -8,9 +8,7 @@ const Customer = () => {
     const [show, setShow] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const rowsPerPage = 5;
-
-    
+    const rowsPerPage = 10; // Number of rows per page
 
     const [formData, setFormData] = useState({
         id: "",
